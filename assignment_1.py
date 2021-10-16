@@ -26,17 +26,21 @@ def entropy_discretization(attribute):
 def segmentation_by_natural_partitioning(attribute):
     print(attribute.head())
     a = np.array(attribute)
-    fith_percentile = np.percentile(a, 5) # return 5th percentile.
-    nienty_fith_percentile = np.percentile(a, 95) # return 95th percentile.
+
+    # calculate 5th and 95th percentiles.
+    fith_percentile = np.percentile(a, 5)
+    nienty_fith_percentile = np.percentile(a, 95) 
+
+    # sort the data.
     sorted_data = np.sort(a)
     n = a.size
-    print(n)
-    a = a.flatten()
-    a.shape
-    print(split(a, a > np.math.floor(a*fith_percentile)))
-    # print(split(a, a < np.math.floor(a*nienty_fith_percentile)))
-    
-    # print(sorted_data)
+    # keep the values from floor(n*0.05) to floor(n*0.95)
+    new_a = split(a, (a > np.math.floor(n*fith_percentile)) & (a < np.math.floor(n*nienty_fith_percentile)))
+    return attribute
+
+# def calculate_correlation(attributeOne, attributeTwo):
+
+# def pca(df):
 
 def split(arr, cond):
     return [arr[cond], arr[~cond]]
