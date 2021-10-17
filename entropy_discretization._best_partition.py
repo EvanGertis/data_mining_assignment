@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import entropy_based_binning as ebb
 from math import log2
+from random import randrange, uniform
 
 def main():
     df = pd.read_csv('S1.csv')
@@ -15,31 +16,40 @@ def main():
 # Then that partition stops splitting.
 def entropy_discretization(s):
 
-    informationGain = {}
-    # while(uniqueValue(s)):
-    # Step 1: pick a threshold
-    threshold = 6
-
-    # Step 2: Partititon the data set into two parttitions
-    s1 = s[s['A'] < threshold]
-    print("s1 after spitting")
-    print(s1)
-    print("******************")
-    s2 = s[s['A'] >= threshold]
-    print("s2 after spitting")
-    print(s2)
-    print("******************")
+    I = {}
+    while(uniqueValue(s)):
+        # Step 1: pick a threshold
+        maxValue = int(np.ceil(s['A'].max()))
+        minValue = int(np.floor(s['A'].min()))
+        print(f'min {minValue}')
+        print(f'max {maxValue}')
         
-    # Step 3: calculate the information gain.
-    informationGain = information_gain(s1,s2,s)
+        threshold = randrange(minValue,maxValue)
 
-    print(informationGain)
+        # Step 2: Partititon the data set into two parttitions
+        s1 = s[s['A'] < threshold]
+        print("s1 after spitting")
+        print(s1)
+        print("******************")
+        s2 = s[s['A'] >= threshold]
+        print("s2 after spitting")
+        print(s2)
+        print("******************")
+            
+        # Step 3: calculate the information gain.
+        informationGain = information_gain(s1,s2,s)
+        print(f'Calculated information gain {informationGain}')
 
-    # # Step 5: calculate the max information gain
-    # minInformationGain = min(informationGain)
+        I.update({'informationGain':informationGain,'threshold':threshold})
+        print(I)
 
-    # # Step 6: keep the partitions of S based on the value of threshold_i
-    # s = bestPartition(minInformationGain, s)
+    # Step 5: calculate the max information gain
+    maxInformationGain = np.amax(informationGain)
+    print(f'Calculated maximum information gain {maxInformationGain}')
+
+
+    # Step 6: keep the partitions of S based on the value of threshold_i
+    s = bestPartition(minInformationGain, s)
 
 def uniqueValue(s):
     # are records in s the same? return true
