@@ -17,14 +17,10 @@ def main():
 def entropy_discretization(s):
 
     I = {}
+    i = 0
     while(uniqueValue(s)):
         # Step 1: pick a threshold
-        maxValue = int(np.ceil(s['A'].max()))
-        minValue = int(np.floor(s['A'].min()))
-        print(f'min {minValue}')
-        print(f'max {maxValue}')
-        
-        threshold = randrange(minValue,maxValue)
+        threshold = s['A'].iloc[0]
 
         # Step 2: Partititon the data set into two parttitions
         s1 = s[s['A'] < threshold]
@@ -38,18 +34,26 @@ def entropy_discretization(s):
             
         # Step 3: calculate the information gain.
         informationGain = information_gain(s1,s2,s)
-        print(f'Calculated information gain {informationGain}')
+        I.update({f'informationGain_{i}':informationGain,f'threshold_{i}': threshold})
+        print(f'added informationGain_{i}: {informationGain}, threshold_{i}: {threshold}')
+        s = s[s['A'] != threshold]
+        i += 1
 
-        I.update({'informationGain':informationGain,'threshold':threshold})
-        print(I)
+    # Step 5: calculate the min information gain
+    n = int(((len(I)/2)-1))
+    print("Calculating minimum threshold")
+    print("*****************************")
+    minInformationGain = 0
+    minThreshold       = 0 
+    for i in range(0, n):
+        if(I[f'informationGain_{i}'] < minInformationGain):
+            minInformationGain = I[f'informationGain_{i}']
+            minThreshold       = I[f'threshold_{i}']
 
-    # Step 5: calculate the max information gain
-    maxInformationGain = np.amax(informationGain)
-    print(f'Calculated maximum information gain {maxInformationGain}')
-
+    print(f'minThreshold: {minThreshold}, minInformationGain: {minInformationGain}')
 
     # Step 6: keep the partitions of S based on the value of threshold_i
-    s = bestPartition(minInformationGain, s)
+    minPartition(minInformationGain,minThreshold,s,s1,s2)
 
 def uniqueValue(s):
     # are records in s the same? return true
@@ -59,11 +63,13 @@ def uniqueValue(s):
     else:
         return True
 
-def bestPartition(maxInformationGain):
-    # determine be threshold_i
-    threshold_i = 6
-
-    return 
+def minPartition(minInformationGain,minThreshold,s,s1,s2):
+    print(f'informationGain: {minInformationGain}, threshold: {minThreshold}')
+    print("Best Partitions")
+    print("***************")
+    print(s1)
+    print(s2)
+    print(s)
 
 
 def information_gain(s1, s2, s):
