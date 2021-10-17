@@ -20,6 +20,9 @@ def main():
 # If min f/ max f < 0.5 and the number of distinct values is floor(n/2)
 # Then that partition stops splitting.
 def entropy_discretization(attribute):
+    # pick a threshold
+    threshold = 6
+    
     print(attribute.head())
 
 
@@ -40,7 +43,16 @@ def segmentation_by_natural_partitioning(attribute):
 
 # def calculate_correlation(attributeOne, attributeTwo):
 
-# def pca(df):
+def pca(df):
+    # Normalize each attribute
+
+    # build the covariance matrix of the attributes.
+
+    # rank eigenvectors in descending order of their eigendvalues
+    # and keep the the significant eigenvectors
+
+    # build the feature vector our of the selected eigenvectors
+     
 
 def split(arr, cond):
     return [arr[cond], arr[~cond]]
