@@ -13,27 +13,27 @@ def print_full(x):
 
 def main():
     s = pd.read_csv('A1-dm.csv')
+    print("******************************************************")
+    print("Entropy Discretization                         STARTED")
+    s = entropy_discretization(s)
+    print("Entropy Discretization                         COMPLETED")
     # print("******************************************************")
-    # print("Entropy Discretization                         STARTED")
-    # entropy_discretization(s)
-    # print("Entropy Discretization                         COMPLETED")
-    # print("******************************************************")
-    print("Segmentation By Natural Partitioning           STARTED")
-    s = segmentation_by_natural_partitioning(s)
-    print("Applying Segmentation By Natural Partitioning COMPLETED")
-    print(s)
-    print("*******************************************************")
-    print("Correlation Calculation                         STARTED")
-    s = calculate_correlation(s)
-    print("*******************************************************")
-    print("Correlation Calculation                       COMPLETED")
-    print(s)
-    print("*******************************************************")
-    print("PCA                                             STARTED")
-    s = pca(s)
-    print("PCA                                            COMPLETED")
-    print(s)
-    print("*******************************************************")
+    # print("Segmentation By Natural Partitioning           STARTED")
+    # s = segmentation_by_natural_partitioning(s)
+    # print("Applying Segmentation By Natural Partitioning COMPLETED")
+    # print(s)
+    # print("*******************************************************")
+    # print("Correlation Calculation                         STARTED")
+    # s = calculate_correlation(s)
+    # print("*******************************************************")
+    # print("Correlation Calculation                       COMPLETED")
+    # print(s)
+    # print("*******************************************************")
+    # print("PCA                                             STARTED")
+    # s = pca(s)
+    # print("PCA                                            COMPLETED")
+    # print(s)
+    # print("*******************************************************")
 
 # This method discretizes attribute A1
 # If the information gain is 0, i.e the number of 
@@ -51,14 +51,14 @@ def entropy_discretization(s):
     i = 0
     while(uniqueValue(s)):
         # Step 1: pick a threshold
-        threshold = s['A'].iloc[0]
+        threshold = s['A1'].iloc[0]
 
         # Step 2: Partititon the data set into two parttitions
-        s1 = s[s['A'] < threshold]
+        s1 = s[s['A1'] < threshold]
         print("s1 after spitting")
         print(s1)
         print("******************")
-        s2 = s[s['A'] >= threshold]
+        s2 = s[s['A1'] >= threshold]
         print("s2 after spitting")
         print(s2)
         print("******************")
@@ -67,7 +67,7 @@ def entropy_discretization(s):
         informationGain = information_gain(s1,s2,s)
         I.update({f'informationGain_{i}':informationGain,f'threshold_{i}': threshold})
         print(f'added informationGain_{i}: {informationGain}, threshold_{i}: {threshold}')
-        s = s[s['A'] != threshold]
+        s = s[s['A1'] != threshold]
         i += 1
 
     # Step 5: calculate the min information gain
@@ -88,7 +88,7 @@ def entropy_discretization(s):
 
 def uniqueValue(s):
     # are records in s the same? return true
-    if s.nunique()['A'] == 1:
+    if s.nunique()['A1'] == 1:
         return False
     # otherwise false 
     else:
@@ -96,22 +96,26 @@ def uniqueValue(s):
 
 def minPartition(minInformationGain,minThreshold,s,s1,s2):
     print(f'informationGain: {minInformationGain}, threshold: {minThreshold}')
-    print("Best Partitions")
+    merged_partitions =  pd.merge(s1,s2)
+    merged_partitions =  pd.merge(merged_partitions,s)
+    print("Best Partition")
     print("***************")
-    print(s1)
-    print(s2)
-    print(s)
+    print(merged_partitions)
+    print("***************")
+    return merged_partitions
+
+
 
 
 def information_gain(s1, s2, s):
     # calculate cardinality for s1
-    cardinalityS1 = len(pd.Index(s1['A']).value_counts())
+    cardinalityS1 = len(pd.Index(s1['A1']).value_counts())
     print(f'The Cardinality of s1 is: {cardinalityS1}')
     # calculate cardinality for s2
-    cardinalityS2 = len(pd.Index(s2['A']).value_counts())
+    cardinalityS2 = len(pd.Index(s2['A1']).value_counts())
     print(f'The Cardinality of s2 is: {cardinalityS2}')
     # calculate cardinality of s
-    cardinalityS = len(pd.Index(s['A']).value_counts())
+    cardinalityS = len(pd.Index(s['A1']).value_counts())
     print(f'The Cardinality of s is: {cardinalityS}')
     # calculate informationGain
     informationGain = (cardinalityS1/cardinalityS) * entropy(s1) + (cardinalityS2/cardinalityS) * entropy(s2)
