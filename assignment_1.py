@@ -152,15 +152,27 @@ def segmentation_by_natural_partitioning(s):
     s_as_array = np.array(s)
     fith_percentile = np.percentile(s_as_array, 5)
     nienty_fith_percentile = np.percentile(s_as_array, 95)
+    print("*****************************")
     print(f'fith_percentile {fith_percentile}')
     print(f'nienty_fith_percentile {nienty_fith_percentile}')
+    print("*****************************")
    
     # sort the data.
-    sorted_data = s['A2'].sort_values()
+    s['A2'] = s['A2'].sort_values()
 
     n = s['A2'].count()
+    print("*****************************")
+    print(f'Total number of records {n}')
+    print("*****************************")
     # keep the values from floor(n*0.05) to floor(n*0.95)
-    s = s[s['A2'] > np.math.floor(n*fith_percentile)]
+    print(s['A2'])
+    f1 = np.math.floor(n*fith_percentile)
+    f2 = np.math.floor(n*nienty_fith_percentile)
+    print("*****************************")
+    print(f'floor(n*0.05) {f1}')
+    print(f'floor(n*0.95) {f2}')
+    print("*****************************")
+    s = s[(s['A2'] > f1) and (s['A2'] < f2)]
 
     return s
 
