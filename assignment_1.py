@@ -20,14 +20,15 @@ def main():
     # print("******************************************************")
     print("Segmentation By Natural Partitioning           STARTED")
     s = segmentation_by_natural_partitioning(s)
-    print(s.head())
     print("Applying Segmentation By Natural Partitioning COMPLETED")
+    print(s)
     print("*******************************************************")
-    # print("Correlation Calculation                         STARTED")
-    # calculate_correlation(s)
-    # print("*******************************************************")
-    # print("Correlation Calculation                       COMPLETED")
-    # print("*******************************************************")
+    print("Correlation Calculation                         STARTED")
+    s = calculate_correlation(s)
+    print("*******************************************************")
+    print("Correlation Calculation                       COMPLETED")
+    print(s)
+    print("*******************************************************")
     # print("PCA                                             STARTED")
     # pca(s)
     # print("PCA                                            COMPLETED")
@@ -181,11 +182,16 @@ def segmentation_by_natural_partitioning(s):
     return s
 
 def calculate_correlation(s):
-    s = s[['A1','A3']]
-    correlation = s.corr().iloc[1,0]
+    s_temp = s[['A1','A3']]
+    correlation = s_temp.corr().iloc[1,0]
+    print("******************************")
+    print(f'Correlation between A1 & A3: {correlation}')
+    print("******************************")
     # if correlation > 0.6 or correlation < 0.6 remove A3
     if correlation > 0.6 or correlation < -0.6:
         s = s.drop(['A3'], axis=1)
+        print(f'A3 was removed {correlation} > 0.6 or {correlation} < -0.6')
+        print("******************************")
     
     return s
 
