@@ -29,10 +29,11 @@ def main():
     print("Correlation Calculation                       COMPLETED")
     print(s)
     print("*******************************************************")
-    # print("PCA                                             STARTED")
-    # pca(s)
-    # print("PCA                                            COMPLETED")
-    # print("*******************************************************")
+    print("PCA                                             STARTED")
+    s = pca(s)
+    print("PCA                                            COMPLETED")
+    print(s)
+    print("*******************************************************")
 
 # This method discretizes attribute A1
 # If the information gain is 0, i.e the number of 
@@ -173,8 +174,8 @@ def segmentation_by_natural_partitioning(s):
     f1 = fith_percentile # np.math.floor(n*0.05)
     f2 = nienty_fith_percentile # np.math.floor(n*0.95)
     print("*****************************")
-    print(f'floor(n*0.05) {f1}')
-    print(f'floor(n*0.95) {f2}')
+    print(f'fith_percentile {f1}')
+    print(f'nienty_fith_percentile {f2}')
     print("*****************************")
     s = s[s['A2'] > f1]
     s = s[s['A2'] < f2]
@@ -218,6 +219,10 @@ def pca(s):
     plot.ylabel('Explained Variance')
     plot.xlabel('Components')
     plot.show()
+
+    # TODO: return transformed data.
+    s = pca.transformed_data
+    return s
 
      
 
