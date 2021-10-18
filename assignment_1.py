@@ -165,14 +165,18 @@ def segmentation_by_natural_partitioning(s):
     print(f'Total number of records {n}')
     print("*****************************")
     # keep the values from floor(n*0.05) to floor(n*0.95)
+    print("******************************")
+    print("Dataset attribute A2")
     print(s['A2'])
-    f1 = np.math.floor(n*fith_percentile)
-    f2 = np.math.floor(n*nienty_fith_percentile)
+    print("******************************")
+    f1 = fith_percentile # np.math.floor(n*0.05)
+    f2 = nienty_fith_percentile # np.math.floor(n*0.95)
     print("*****************************")
     print(f'floor(n*0.05) {f1}')
     print(f'floor(n*0.95) {f2}')
     print("*****************************")
-    s = s[(s['A2'] > f1) and (s['A2'] < f2)]
+    s = s[s['A2'] > f1]
+    s = s[s['A2'] < f2]
 
     return s
 
