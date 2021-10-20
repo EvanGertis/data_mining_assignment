@@ -2,7 +2,7 @@ from numpy.core.defchararray import count
 import pandas as pd
 import numpy as np
 import numpy as np
-from math import log2
+from math import floor, log2
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plot
 
@@ -13,27 +13,29 @@ def print_full(x):
 
 def main():
     s = pd.read_csv('A1-dm.csv')
-    # print("******************************************************")
-    # print("Entropy Discretization                         STARTED")
-    # s = entropy_discretization(s)
-    # print("Entropy Discretization                         COMPLETED")
+    print(s)
     print("******************************************************")
-    print("Segmentation By Natural Partitioning           STARTED")
-    s = segmentation_by_natural_partitioning(s)
-    print("Applying Segmentation By Natural Partitioning COMPLETED")
+    print("Entropy Discretization                         STARTED")
+    s = entropy_discretization(s)
+    print("Entropy Discretization                         COMPLETED")
     print(s)
-    print("*******************************************************")
-    print("Correlation Calculation                         STARTED")
-    s = calculate_correlation(s)
-    print("*******************************************************")
-    print("Correlation Calculation                       COMPLETED")
-    print(s)
-    print("*******************************************************")
-    print("PCA                                             STARTED")
-    s = pca(s)
-    print("PCA                                            COMPLETED")
-    print(s)
-    print("*******************************************************")
+    # print("******************************************************")
+    # print("Segmentation By Natural Partitioning           STARTED")
+    # s = segmentation_by_natural_partitioning(s)
+    # print("Applying Segmentation By Natural Partitioning COMPLETED")
+    # print(s)
+    # print("*******************************************************")
+    # print("Correlation Calculation                         STARTED")
+    # s = calculate_correlation(s)
+    # print("*******************************************************")
+    # print("Correlation Calculation                       COMPLETED")
+    # print(s)
+    # print("*******************************************************")
+    # print("PCA                                             STARTED")
+    # s = pca(s)
+    # print("PCA                                            COMPLETED")
+    # print(s)
+    # print("*******************************************************")
 
 # This method discretizes attribute A1
 # If the information gain is 0, i.e the number of 
@@ -49,9 +51,15 @@ def entropy_discretization(s):
 
     I = {}
     i = 0
-    while(uniqueValue(s)):
+    n = s.nunique()['A1']
+    s_temp = s
+    s1 = pd.DataFrame()
+    s2 = pd.DataFrame()
+    while(uniqueValue(s_temp)):
+        
+
         # Step 1: pick a threshold
-        threshold = s['A1'].iloc[0]
+        threshold = s_temp['A1'].iloc[0]
 
         # Step 2: Partititon the data set into two parttitions
         s1 = s[s['A1'] < threshold]
@@ -62,29 +70,47 @@ def entropy_discretization(s):
         print("s2 after spitting")
         print(s2)
         print("******************")
+
+        print("******************")
+        print("calculating maxf")
+        maxf(s['A1'])
+        print("******************")
+
+        # print(maxf(s['A1'])/minf(s['A1']))
+        if (maxf(s1['A1'])/minf(s1['A1']) < 0.5) and (s_temp.nunique()['A1'] == floor(n/2)):
+            break
             
         # Step 3: calculate the information gain.
-        informationGain = information_gain(s1,s2,s)
+        informationGain = information_gain(s1,s2,s_temp)
         I.update({f'informationGain_{i}':informationGain,f'threshold_{i}': threshold})
         print(f'added informationGain_{i}: {informationGain}, threshold_{i}: {threshold}')
-        s = s[s['A1'] != threshold]
+        s_temp = s_temp[s_temp['A1'] != threshold]
         i += 1
 
     # Step 5: calculate the min information gain
     n = int(((len(I)/2)-1))
-    print("Calculating minimum threshold")
+    print("Calculating maximum threshold")
     print("*****************************")
-    minInformationGain = 0
-    minThreshold       = 0 
+    maxInformationGain = 0
+    maxThreshold       = 0 
     for i in range(0, n):
-        if(I[f'informationGain_{i}'] < minInformationGain):
-            minInformationGain = I[f'informationGain_{i}']
-            minThreshold       = I[f'threshold_{i}']
+        if(I[f'informationGain_{i}'] > maxInformationGain):
+            maxInformationGain = I[f'informationGain_{i}']
+            maxThreshold       = I[f'threshold_{i}']
 
-    print(f'minThreshold: {minThreshold}, minInformationGain: {minInformationGain}')
+    print(f'maxThreshold: {maxThreshold}, maxInformationGain: {maxInformationGain}')
+
+    s = pd.merge(s1,s2)
 
     # Step 6: keep the partitions of S based on the value of threshold_i
-    minPartition(minInformationGain,minThreshold,s,s1,s2)
+    return s #maxPartition(maxInformationGain,maxThreshold,s,s1,s2)
+
+
+def maxf(s):
+    return s.max()
+
+def minf(s):
+    return s.min()
 
 def uniqueValue(s):
     # are records in s the same? return true
@@ -94,8 +120,8 @@ def uniqueValue(s):
     else:
         return True
 
-def minPartition(minInformationGain,minThreshold,s,s1,s2):
-    print(f'informationGain: {minInformationGain}, threshold: {minThreshold}')
+def maxPartition(maxInformationGain,maxThreshold,s,s1,s2):
+    print(f'informationGain: {maxInformationGain}, threshold: {maxThreshold}')
     merged_partitions =  pd.merge(s1,s2)
     merged_partitions =  pd.merge(merged_partitions,s)
     print("Best Partition")
@@ -202,28 +228,62 @@ def calculate_correlation(s):
 
 def pca(s):
     # Normalize each s
-    s_normalized=(s - s.mean()) / s.std()
-    pca = PCA(n_components=3)
-    pca.fit(s_normalized)
-    s = pca.transform(s)
-
-    # build the covariance matrix of the s.
-
-    # rank eigenvectors in descending order of their eigenvalues
-    # and keep the the significant eigenvectors
-
-    # build the feature vector our of the selected eigenvectors
+    A1 = s[['A1']].to_numpy()
+    A2 = s[['A2']].to_numpy()
     
-    # Reformat and view results
-    # loadings = pd.DataFrame(pca.components_.T,
-    # columns=['PC%s' % _ for _ in range(len(s_normalized.columns))],
-    # index=s.columns)
-    # print(loadings)
+    print(A1.ndim)
+    if 'A3' in s:
+        A3 = s[['A3']].to_numpy()
+        A3_norm = A3/np.linalg.norm(A3)
 
-    plot.plot(pca.explained_variance_ratio_)
-    plot.ylabel('Explained Variance')
-    plot.xlabel('Components')
-    plot.show()
+    A1_norm = A1/np.linalg.norm(A1)
+    A2_norm = A2/np.linalg.norm(A2)
+
+    data = np.array([A1_norm,A2_norm])
+    if 'A3' in s:
+        data = np.array([A1_norm,A2_norm,A3_norm])
+
+    # determine covariance
+    covMatrix = np.cov(data,bias=True)
+    print (covMatrix)
+
+    # compute eigen vactors and eigenvalues
+    w, v = LA.eig(covMatrix)
+    print("eigen vectors")
+    print(v)
+
+    print("eigen values")
+    print(w)
+
+    varianceV = np.empty(3)
+
+    varianceV[0] = w[0]/(w[0]+w[1])
+    varianceV[1] = w[1]/(w[0]+w[1])
+
+    # calculate variances
+    if 'A3' in s:
+        varianceV[0] = w[0]/(w[0]+w[1]+w[2])
+        varianceV[1] = w[1]/(w[0]+w[1]+w[2])
+        varianceV[2] = w[2]/(w[0]+w[1]+w[2])
+
+    
+
+
+    print(f' variance of v1 : {varianceV[0]}')
+    print(f' variance of v2 : {varianceV[1]}')
+    if 'A3' in s: 
+        print(f' variance of v3 : {varianceV[2]}')
+
+    # calculate feature vector
+    v_initial = 0
+    featureVector = np.empty(3)
+    for i in range(0,len(varianceV)):
+        if varianceV[i] > v_initial:
+            featureVector = v[i]
+
+    print(f'feature vector: {featureVector}')
+
+    # TODO: multiply s by feature vectore
 
     return s
     

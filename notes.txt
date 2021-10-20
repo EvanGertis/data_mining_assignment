@@ -1,0 +1,26 @@
+1000 records these are the unique values of those
+
+v1 10
+v2 30
+v3 15
+v4 20
+v5 25
+
+--- n = 5
+
+s1
+
+v1 10 -> 10/30 = .34   
+v2 30  
+v3 15
+
+--- n1 = 3
+
+s2
+v4 20 -> 20/25 = 0.8
+v5 25
+
+--- n2 = 2
+
+if minf(s1)/maxf(s1) < 0.5 then condition 1 of b is met and floor(n/2) == n1 then condition 2 of b is met.
+    stop split
