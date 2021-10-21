@@ -50,12 +50,12 @@ def entropy_discretization(s):
 
     I = {}
     i = 0
-    n = s.nunique()['A1']
+    n = s.nunique()['Class']
     s1 = pd.DataFrame()
     s2 = pd.DataFrame()
-    distinct_values = s['A1'].value_counts().index
+    distinct_values = s['Class'].value_counts().index
     information_gain_indicies = []
-    print(f'The unique values for dataset s["A1"] are {distinct_values}')
+    print(f'The unique values for dataset s["Class"] are {distinct_values}')
     for i in distinct_values:
 
         # Step 1: pick a threshold
@@ -63,32 +63,32 @@ def entropy_discretization(s):
         print(f'Using threshold {threshold}')
 
         # Step 2: Partititon the data set into two parttitions
-        s1 = s[s['A1'] < threshold]
+        s1 = s[s['Class'] < threshold]
         print("s1 after spitting")
         print(s1)
         print("******************")
-        s2 = s[s['A1'] >= threshold]
+        s2 = s[s['Class'] >= threshold]
         print("s2 after spitting")
         print(s2)
         print("******************")
 
         print("******************")
         print("calculating maxf")
-        print(f" maxf {maxf(s['A1'])}")
+        print(f" maxf {maxf(s['Class'])}")
         print("******************")
 
         print("******************")
         print("calculating minf")
-        print(f" maxf {minf(s['A1'])}")
+        print(f" maxf {minf(s['Class'])}")
         print("******************")
 
-        print(f"Checking condition a if {s1.nunique()['A1']} == {1}")
-        if (s1.nunique()['A1'] == 1):
+        print(f"Checking condition a if {s1.nunique()['Class']} == {1}")
+        if (s1.nunique()['Class'] == 1):
             break
 
-        print(f"Checking condition b  {maxf(s1['A1'])}/{minf(s1['A1'])} < {0.5} {s1.nunique()['A1']} == {floor(n/2)}")
-        if (maxf(s1['A1'])/minf(s1['A1']) < 0.5) and (s1.nunique()['A1'] == floor(n/2)):
-            print(f"Condition b is met{maxf(s1['A1'])}/{minf(s1['A1'])} < {0.5} {s1.nunique()['A1']} == {floor(n/2)}")
+        print(f"Checking condition b  {maxf(s1['Class'])}/{minf(s1['Class'])} < {0.5} {s1.nunique()['Class']} == {floor(n/2)}")
+        if (maxf(s1['Class'])/minf(s1['Class']) < 0.5) and (s1.nunique()['Class'] == floor(n/2)):
+            print(f"Condition b is met{maxf(s1['Class'])}/{minf(s1['Class'])} < {0.5} {s1.nunique()['Class']} == {floor(n/2)}")
             break
 
         # Step 3: calculate the information gain.
@@ -124,7 +124,7 @@ def minf(s):
 
 def uniqueValue(s):
     # are records in s the same? return true
-    if s.nunique()['A1'] == 1:
+    if s.nunique()['Class'] == 1:
         return False
     # otherwise false 
     else:
@@ -145,13 +145,13 @@ def maxPartition(maxInformationGain,maxThreshold,s,s1,s2):
 
 def information_gain(s1, s2, s):
     # calculate cardinality for s1
-    cardinalityS1 = len(pd.Index(s1['A1']).value_counts())
+    cardinalityS1 = len(pd.Index(s1['Class']).value_counts())
     print(f'The Cardinality of s1 is: {cardinalityS1}')
     # calculate cardinality for s2
-    cardinalityS2 = len(pd.Index(s2['A1']).value_counts())
+    cardinalityS2 = len(pd.Index(s2['Class']).value_counts())
     print(f'The Cardinality of s2 is: {cardinalityS2}')
     # calculate cardinality of s
-    cardinalityS = len(pd.Index(s['A1']).value_counts())
+    cardinalityS = len(pd.Index(s['Class']).value_counts())
     print(f'The Cardinality of s is: {cardinalityS}')
     # calculate informationGain
     informationGain = (cardinalityS1/cardinalityS) * entropy(s1) + (cardinalityS2/cardinalityS) * entropy(s2)
