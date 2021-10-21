@@ -19,7 +19,7 @@ def main():
     s = entropy_discretization(s)
     print("Entropy Discretization                         COMPLETED")
     print(s)
-    # print("******************************************************")
+    print("******************************************************")
     # print("Segmentation By Natural Partitioning           STARTED")
     # s = segmentation_by_natural_partitioning(s)
     # print("Applying Segmentation By Natural Partitioning COMPLETED")
@@ -55,37 +55,44 @@ def entropy_discretization(s):
     s_temp = s
     s1 = pd.DataFrame()
     s2 = pd.DataFrame()
-    while(uniqueValue(s_temp)):
+    print(s.value_counts())
+    # while(uniqueValue(s_temp)):
         
 
-        # Step 1: pick a threshold
-        threshold = s_temp['A1'].iloc[0]
+    #     # Step 1: pick a threshold
+    #     threshold = s_temp['A1'].iloc[0]
 
-        # Step 2: Partititon the data set into two parttitions
-        s1 = s[s['A1'] < threshold]
-        print("s1 after spitting")
-        print(s1)
-        print("******************")
-        s2 = s[s['A1'] >= threshold]
-        print("s2 after spitting")
-        print(s2)
-        print("******************")
+    #     # Step 2: Partititon the data set into two parttitions
+    #     s1 = s[s['A1'] < threshold]
+    #     print("s1 after spitting")
+    #     print(s1)
+    #     print("******************")
+    #     s2 = s[s['A1'] >= threshold]
+    #     print("s2 after spitting")
+    #     print(s2)
+    #     print("******************")
 
-        print("******************")
-        print("calculating maxf")
-        maxf(s['A1'])
-        print("******************")
+    #     print("******************")
+    #     print("calculating maxf")
+    #     print(f" maxf {maxf(s['A1'])}")
+    #     print("******************")
 
-        # print(maxf(s['A1'])/minf(s['A1']))
-        if (maxf(s1['A1'])/minf(s1['A1']) < 0.5) and (s_temp.nunique()['A1'] == floor(n/2)):
-            break
+    #     print("******************")
+    #     print("calculating minf")
+    #     print(f" maxf {minf(s['A1'])}")
+    #     print("******************")
+
+    #     # print(maxf(s['A1'])/minf(s['A1']))
+    #     if (maxf(s1['A1'])/minf(s1['A1']) < 0.5) and (s_temp.nunique()['A1'] == floor(n/2)):
+    #         print(f"Condition b is met{maxf(s1['A1'])}/{minf(s1['A1'])} < {0.5} {s_temp.nunique()['A1']} == {floor(n/2)}")
+    #         break
             
-        # Step 3: calculate the information gain.
-        informationGain = information_gain(s1,s2,s_temp)
-        I.update({f'informationGain_{i}':informationGain,f'threshold_{i}': threshold})
-        print(f'added informationGain_{i}: {informationGain}, threshold_{i}: {threshold}')
-        s_temp = s_temp[s_temp['A1'] != threshold]
-        i += 1
+    #     # Step 3: calculate the information gain.
+    #     informationGain = information_gain(s1,s2,s_temp)
+    #     I.update({f'informationGain_{i}':informationGain,f'threshold_{i}': threshold})
+    #     print(f'added informationGain_{i}: {informationGain}, threshold_{i}: {threshold}')
+    #     # s_temp = s_temp[s_temp['A1'] != threshold]
+    #     i += 1
 
     # Step 5: calculate the min information gain
     n = int(((len(I)/2)-1))

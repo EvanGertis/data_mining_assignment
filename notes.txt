@@ -1,4 +1,4 @@
-1000 records these are the unique values of those
+100 records these are the unique values of those
 
 v1 10
 v2 30
