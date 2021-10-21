@@ -18,23 +18,23 @@ def main():
     s = entropy_discretization(s)
     print("Entropy Discretization                         COMPLETED")
     print(s)
-    # print("******************************************************")
-    # print("Segmentation By Natural Partitioning           STARTED")
-    # s = segmentation_by_natural_partitioning(s)
-    # print("Applying Segmentation By Natural Partitioning COMPLETED")
-    # print(s)
-    # print("*******************************************************")
-    # print("Correlation Calculation                         STARTED")
-    # s = calculate_correlation(s)
-    # print("*******************************************************")
-    # print("Correlation Calculation                       COMPLETED")
-    # print(s)
-    # print("*******************************************************")
-    # print("PCA                                             STARTED")
-    # s = pca(s)
-    # print("PCA                                            COMPLETED")
-    # print(s)
-    # print("*******************************************************")
+    print("******************************************************")
+    print("Segmentation By Natural Partitioning           STARTED")
+    s = segmentation_by_natural_partitioning(s)
+    print("Applying Segmentation By Natural Partitioning COMPLETED")
+    print(s)
+    print("*******************************************************")
+    print("Correlation Calculation                         STARTED")
+    s = calculate_correlation(s)
+    print("*******************************************************")
+    print("Correlation Calculation                       COMPLETED")
+    print(s)
+    print("*******************************************************")
+    print("PCA                                             STARTED")
+    s = pca(s)
+    print("PCA                                            COMPLETED")
+    print(s)
+    print("*******************************************************")
 
 # This method discretizes attribute A1
 # If the information gain is 0, i.e the number of 
@@ -110,10 +110,11 @@ def entropy_discretization(s):
 
     print(f'maxThreshold: {maxThreshold}, maxInformationGain: {maxInformationGain}')
 
-    s1 = pd.merge(s1,s2)
+    partitions = [s1,s2]
+    s = pd.concat(partitions)
 
     # Step 6: keep the partitions of S based on the value of threshold_i
-    return s1 #maxPartition(maxInformationGain,maxThreshold,s,s1,s2)
+    return s #maxPartition(maxInformationGain,maxThreshold,s,s1,s2)
 
 
 def maxf(s):
