@@ -239,63 +239,30 @@ def calculate_correlation(s):
 
 def pca(s):
     # Normalize each s
-    A1 = s[['A1']].to_numpy()
-    A2 = s[['A2']].to_numpy()
+    s_normalized=(s - s.mean()) / s.std()
+    pca = PCA(n_components=s.shape[1])
+    pca.fit(s_normalized)
+
+    # build the covariance matrix of the s.
+
+    # rank eigenvectors in descending order of their eigenvalues
+    # and keep the the significant eigenvectors
+
+    # build the feature vector our of the selected eigenvectors
     
-    print(A1.ndim)
-    if 'A3' in s:
-        A3 = s[['A3']].to_numpy()
-        A3_norm = A3/np.linalg.norm(A3)
+    # Reformat and view results
+    loadings = pd.DataFrame(pca.components_.T,
+    columns=['PC%s' % _ for _ in range(len(s_normalized.columns))],
+    index=s.columns)
+    print(loadings)
 
-    A1_norm = A1/np.linalg.norm(A1)
-    A2_norm = A2/np.linalg.norm(A2)
+    plot.plot(pca.explained_variance_ratio_)
+    plot.ylabel('Explained Variance')
+    plot.xlabel('Components')
+    plot.show()
 
-    data = np.array([A1_norm,A2_norm])
-    if 'A3' in s:
-        data = np.array([A1_norm,A2_norm,A3_norm])
-
-    # determine covariance
-    covMatrix = np.cov(data,bias=True)
-    print (covMatrix)
-
-    # compute eigen vactors and eigenvalues
-    w, v = LA.eig(covMatrix)
-    print("eigen vectors")
-    print(v)
-
-    print("eigen values")
-    print(w)
-
-    varianceV = np.empty(3)
-
-    varianceV[0] = w[0]/(w[0]+w[1])
-    varianceV[1] = w[1]/(w[0]+w[1])
-
-    # calculate variances
-    if 'A3' in s:
-        varianceV[0] = w[0]/(w[0]+w[1]+w[2])
-        varianceV[1] = w[1]/(w[0]+w[1]+w[2])
-        varianceV[2] = w[2]/(w[0]+w[1]+w[2])
-
-    
-
-
-    print(f' variance of v1 : {varianceV[0]}')
-    print(f' variance of v2 : {varianceV[1]}')
-    if 'A3' in s: 
-        print(f' variance of v3 : {varianceV[2]}')
-
-    # calculate feature vector
-    v_initial = 0
-    featureVector = np.empty(3)
-    for i in range(0,len(varianceV)):
-        if varianceV[i] > v_initial:
-            featureVector = v[i]
-
-    print(f'feature vector: {featureVector}')
-
-    # TODO: multiply s by feature vectore
-
+    # TODO: return transformed data.
+    s = pca.transformed_data
     return s
     
 
