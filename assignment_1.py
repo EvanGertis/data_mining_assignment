@@ -262,7 +262,7 @@ def pca(s):
     plot.show()
 
     # TODO: return transformed data.
-    s = pca.transformed_data
+    s = pca.transform(s_normalized)
     return s
     
 
