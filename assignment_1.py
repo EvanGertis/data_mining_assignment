@@ -53,9 +53,9 @@ def entropy_discretization(s):
     n = s.nunique()['Class']
     s1 = pd.DataFrame()
     s2 = pd.DataFrame()
-    distinct_values = s['Class'].value_counts().index
+    distinct_values = s['A1'].value_counts().index
     information_gain_indicies = []
-    print(f'The unique values for dataset s["Class"] are {distinct_values}')
+    print(f'The unique values for dataset s["A1"] are {distinct_values}')
     for i in distinct_values:
 
         # Step 1: pick a threshold
@@ -82,6 +82,12 @@ def entropy_discretization(s):
         print(f" maxf {minf(s['Class'])}")
         print("******************")
 
+        # Step 3: calculate the information gain.
+        informationGain = information_gain(s1,s2,s)
+        I.update({f'informationGain_{i}':informationGain,f'threshold_{i}': threshold})
+        print(f'added informationGain_{i}: {informationGain}, threshold_{i}: {threshold}')
+        information_gain_indicies.append(i)
+
         print(f"Checking condition a if {s1.nunique()['Class']} == {1}")
         if (s1.nunique()['Class'] == 1):
             break
@@ -91,11 +97,10 @@ def entropy_discretization(s):
             print(f"Condition b is met{maxf(s1['Class'])}/{minf(s1['Class'])} < {0.5} {s1.nunique()['Class']} == {floor(n/2)}")
             break
 
-        # Step 3: calculate the information gain.
-        informationGain = information_gain(s1,s2,s)
-        I.update({f'informationGain_{i}':informationGain,f'threshold_{i}': threshold})
-        print(f'added informationGain_{i}: {informationGain}, threshold_{i}: {threshold}')
-        information_gain_indicies.append(i)
+
+    print("Elements in I")
+    print(I)
+    print("*****************************")
 
     # Step 5: calculate the min information gain
     n = int(((len(I)/2)-1))
@@ -104,11 +109,31 @@ def entropy_discretization(s):
     maxInformationGain = 0
     maxThreshold       = 0 
     for i in information_gain_indicies:
+        print(f"if({I[f'informationGain_{i}']} > {maxInformationGain})")
         if(I[f'informationGain_{i}'] > maxInformationGain):
             maxInformationGain = I[f'informationGain_{i}']
             maxThreshold       = I[f'threshold_{i}']
 
     print(f'maxThreshold: {maxThreshold}, maxInformationGain: {maxInformationGain}')
+
+    # replace values
+    print(f" {s1['A1'].value_counts().index}")
+    for i in s1['A1'].value_counts().index:
+        print(f"s1['A1'].replace({i},1)")
+        s1['A1'] = s1['A1'].replace(i,1)
+
+    print(f" {s2['A1'].value_counts().index}")
+    for i in s2['A1'].value_counts().index:
+        print(f"s2['A1'].replace({i},2)")
+        s2['A1'] = s2['A1'].replace(i,2)
+
+    print("s1 after replacing values")
+    print(s1)
+    print("******************")
+    print("s2 after replacing values")
+    print(s2)
+    print("******************")
+    
 
     partitions = [s1,s2]
     s = pd.concat(partitions)
