@@ -2,9 +2,9 @@ from numpy.core.defchararray import count
 import pandas as pd
 import numpy as np
 import numpy as np
-from math import floor, log2
+from math import ceil, floor, log2
 from sklearn.decomposition import PCA
-import matplotlib.pyplot as plot
+from numpy import linalg as LA
 
 def print_full(x):
     pd.set_option('display.max_rows', len(x))
@@ -34,6 +34,11 @@ def main():
     s = pca(s)
     print("PCA                                            COMPLETED")
     print(s)
+    print("*******************************************************")
+    print("Writing to csv                                  STARTED")
+    compression_opts = dict(method='zip',archive_name='out.csv') 
+    s.to_csv('out.zip', index=False,compression=compression_opts) 
+    print("Writing to csv                                COMPLETED")
     print("*******************************************************")
 
 # This method discretizes attribute A1
@@ -220,6 +225,8 @@ def segmentation_by_natural_partitioning(s):
     s_as_array = np.array(s)
     fith_percentile = np.percentile(s_as_array, 5)
     nienty_fith_percentile = np.percentile(s_as_array, 95)
+    print(f"range [{s['A2'].max()},{s['A2'].min()}]")
+    print()
     print("*****************************")
     print(f'fith_percentile {fith_percentile}')
     print(f'nienty_fith_percentile {nienty_fith_percentile}')
@@ -246,7 +253,23 @@ def segmentation_by_natural_partitioning(s):
     s = s[s['A2'] > f1]
     s = s[s['A2'] < f2]
 
+    print(f"range after cleaning [{s['A2'].max()},{s['A2'].min()}]")
+
+    maximum = ceil(s['A2'].max())
+    minimum = floor(s['A2'].min())
+
+    print(f"[maximum,minimum] [{minimum},{maximum}]")
+    print(f"subtract {most_significant_while_floordiv(maximum)} - {most_significant_while_floordiv(minimum)}")
+    numberOfGaps =  most_significant_while_floordiv(maximum) - most_significant_while_floordiv(minimum)
+    print(f"numberOfGaps {numberOfGaps}")
+    print(f"The number of values that cover the range are [{minimum},{maximum}]")
+
     return s
+
+def most_significant_while_floordiv(i):
+    while i >= 10:
+        i //= 10
+    return i
 
 def calculate_correlation(s):
     s_temp = s[['A1','A3']]
@@ -262,33 +285,73 @@ def calculate_correlation(s):
     
     return s
 
+def df_to_array(df):
+    A1 = df[['A1']].to_numpy()
+    A2 = df[['A2']].to_numpy()
+    if 'A3' in df:
+        A3 = df[['A3']].to_numpy()
+
+    df_as_matrix = np.array(A1,A2)
+    if 'A3' in s:
+        df_as_matrix = np.concatenate(df_as_matrix,A3)
+
+
+    return df_as_matrix
+
 def pca(s):
     # Normalize each s
-    s_normalized=(s - s.mean()) / s.std()
-    pca = PCA(n_components=s.shape[1])
-    pca.fit(s_normalized)
-
-    # build the covariance matrix of the s.
-
-    # rank eigenvectors in descending order of their eigenvalues
-    # and keep the the significant eigenvectors
-
-    # build the feature vector our of the selected eigenvectors
+    A1 = s[['A1']].to_numpy()
+    A2 = s[['A2']].to_numpy()
     
-    # Reformat and view results
-    loadings = pd.DataFrame(pca.components_.T,
-    columns=['PC%s' % _ for _ in range(len(s_normalized.columns))],
-    index=s.columns)
-    print(loadings)
+    print(A1.ndim)
+    if 'A3' in s:
+        A3 = s[['A3']].to_numpy()
+        A3_norm = A3/np.linalg.norm(A3)
 
-    plot.plot(pca.explained_variance_ratio_)
-    plot.ylabel('Explained Variance')
-    plot.xlabel('Components')
-    plot.show()
+    A1_norm = A1/np.linalg.norm(A1)
+    A2_norm = A2/np.linalg.norm(A2)
 
-    # TODO: return transformed data.
-    s = pca.transform(s_normalized)
-    return s
-    
+    data = np.array([A1_norm,A2_norm])
+    if 'A3' in s:
+        data = np.array([A1_norm,A2_norm,A3_norm]).squeeze()
+
+    # determine covariance
+    covMatrix = np.cov(data,bias=True)
+    print(covMatrix)
+
+    # compute eigen vactors and eigenvalues
+    w, v = LA.eig(covMatrix)
+    print("eigen vectors")
+    print(v)
+
+    print("eigen values")
+    print(w)
+
+    varianceV = np.empty(3)
+
+    # calculate variances
+    varianceV[0] = w[0]/(w[0]+w[1]+w[2])
+    varianceV[1] = w[1]/(w[0]+w[1]+w[2])
+    varianceV[2] = w[2]/(w[0]+w[1]+w[2])
+
+
+    print(f' variance of v1 : {varianceV[0]}')
+    print(f' variance of v2 : {varianceV[1]}')
+    print(f' variance of v3 : {varianceV[2]}')
+
+    # calculate feature vector
+    v_initial = 0
+    featureVector = np.empty(3)
+    for i in range(0,3):
+        if varianceV[i] > v_initial:
+            featureVector = v[i]
+
+    print(f'feature vector: {featureVector}')
+    resolved_dataset = np.matmul(np.transpose(featureVector),data)
+    print(f'resolved_dataset.ndim = {resolved_dataset.ndim}')
+    print(f'dataset = {resolved_dataset}')
+    df = pd.DataFrame(resolved_dataset, columns = ['data'])
+    return df
+
 
 main()
