@@ -21,25 +21,25 @@ def main():
     print("******************************************************")
     print("Segmentation By Natural Partitioning           STARTED")
     s = segmentation_by_natural_partitioning(s)
-    print("Applying Segmentation By Natural Partitioning COMPLETED")
-    print(s)
-    print("*******************************************************")
-    print("Correlation Calculation                         STARTED")
-    s = calculate_correlation(s)
-    print("*******************************************************")
-    print("Correlation Calculation                       COMPLETED")
-    print(s)
-    print("*******************************************************")
-    print("PCA                                             STARTED")
-    s = pca(s)
-    print("PCA                                            COMPLETED")
-    print(s)
-    print("*******************************************************")
-    print("Writing to csv                                  STARTED")
-    compression_opts = dict(method='zip',archive_name='out.csv') 
-    s.to_csv('out.zip', index=False,compression=compression_opts) 
-    print("Writing to csv                                COMPLETED")
-    print("*******************************************************")
+    # print("Applying Segmentation By Natural Partitioning COMPLETED")
+    # print(s)
+    # print("*******************************************************")
+    # print("Correlation Calculation                         STARTED")
+    # s = calculate_correlation(s)
+    # print("*******************************************************")
+    # print("Correlation Calculation                       COMPLETED")
+    # print(s)
+    # print("*******************************************************")
+    # print("PCA                                             STARTED")
+    # s = pca(s)
+    # print("PCA                                            COMPLETED")
+    # print(s)
+    # print("*******************************************************")
+    # print("Writing to csv                                  STARTED")
+    # compression_opts = dict(method='zip',archive_name='out.csv') 
+    # s.to_csv('out.zip', index=False,compression=compression_opts) 
+    # print("Writing to csv                                COMPLETED")
+    # print("*******************************************************")
 
 # This method discretizes attribute A1
 # If the information gain is 0, i.e the number of 
@@ -58,8 +58,10 @@ def entropy_discretization(s):
     n = s.nunique()['Class']
     s1 = pd.DataFrame()
     s2 = pd.DataFrame()
+    s3 = pd.DataFrame()
     distinct_values = s['A1'].value_counts().index
     information_gain_indicies = []
+    partitions = []
     print(f'The unique values for dataset s["A1"] are {distinct_values}')
     for i in distinct_values:
 
@@ -95,7 +97,13 @@ def entropy_discretization(s):
 
         print(f"Checking condition a if {s1.nunique()['Class']} == {1}")
         if (s1.nunique()['Class'] == 1):
+            if (s1.nunique()['Class'] == 1 and s2.nunique()['Class'] == 1):
+                print("The number of distinct classes in s1 are 1.")
+                print(f"Checking the condition {s1.nunique()['Class']} == {1} and {s2.nunique()['Class']} == {1}")
+                break
+            s3 = entropy_discretization(s2)
             break
+
 
         print(f"Checking condition b  {maxf(s1['Class'])}/{minf(s1['Class'])} < {0.5} {s1.nunique()['Class']} == {floor(n/2)}")
         if (maxf(s1['Class'])/minf(s1['Class']) < 0.5) and (s1.nunique()['Class'] == floor(n/2)):
@@ -122,15 +130,20 @@ def entropy_discretization(s):
     print(f'maxThreshold: {maxThreshold}, maxInformationGain: {maxInformationGain}')
 
     # replace values
-    print(f" {s1['A1'].value_counts().index}")
-    for i in s1['A1'].value_counts().index:
-        print(f"s1['A1'].replace({i},1)")
-        s1['A1'] = s1['A1'].replace(i,1)
+    # print(f" {s1['A1'].value_counts().index}")
+    # for i in s1['A1'].value_counts().index:
+    #     print(f"s1['A1'].replace({i},1)")
+    #     s1['A1'] = s1['A1'].replace(i,1)
 
-    print(f" {s2['A1'].value_counts().index}")
-    for i in s2['A1'].value_counts().index:
-        print(f"s2['A1'].replace({i},2)")
-        s2['A1'] = s2['A1'].replace(i,2)
+    # print(f" {s2['A1'].value_counts().index}")
+    # for i in s2['A1'].value_counts().index:
+    #     print(f"s2['A1'].replace({i},2)")
+    #     s2['A1'] = s2['A1'].replace(i,2)
+
+    # print(f" {s3['A1'].value_counts().index}")
+    # for i in s3['A1'].value_counts().index:
+    #     print(f"s3['A1'].replace({i},3)")
+    #     s3['A1'] = s3['A1'].replace(i,3)
 
     print("s1 after replacing values")
     print(s1)
@@ -138,14 +151,20 @@ def entropy_discretization(s):
     print("s2 after replacing values")
     print(s2)
     print("******************")
+    print("s3 after replacing values")
+    print(s3)
+    print("******************")
     
 
-    partitions = [s1,s2]
+    partitions = [s1,s2,s3]
+    print("*************** print partitions *****************")
+    print(partitions)
+    print("*************** end partitions *****************")
     s = pd.concat(partitions)
 
     # Step 6: keep the partitions of S based on the value of threshold_i
     return s #maxPartition(maxInformationGain,maxThreshold,s,s1,s2)
-
+    
 
 def maxf(s):
     return s.max()
@@ -233,38 +252,39 @@ def segmentation_by_natural_partitioning(s):
     print("*****************************")
    
     # sort the data.
+    print(s['A2'])
     s['A2'] = s['A2'].sort_values()
 
-    n = s['A2'].count()
-    print("*****************************")
-    print(f'Total number of records {n}')
-    print("*****************************")
-    # keep the values from floor(n*0.05) to floor(n*0.95)
-    print("******************************")
-    print("Dataset attribute A2")
-    print(s['A2'])
-    print("******************************")
-    f1 = fith_percentile # np.math.floor(n*0.05)
-    f2 = nienty_fith_percentile # np.math.floor(n*0.95)
-    print("*****************************")
-    print(f'fith_percentile {f1}')
-    print(f'nienty_fith_percentile {f2}')
-    print("*****************************")
-    s = s[s['A2'] > f1]
-    s = s[s['A2'] < f2]
+    # n = s['A2'].count()
+    # print("*****************************")
+    # print(f'Total number of records {n}')
+    # print("*****************************")
+    # # keep the values from floor(n*0.05) to floor(n*0.95)
+    # print("******************************")
+    # print("Dataset attribute A2")
+    # print(s['A2'])
+    # print("******************************")
+    # f1 = fith_percentile # np.math.floor(n*0.05)
+    # f2 = nienty_fith_percentile # np.math.floor(n*0.95)
+    # print("*****************************")
+    # print(f'fith_percentile {f1}')
+    # print(f'nienty_fith_percentile {f2}')
+    # print("*****************************")
+    # s = s[s['A2'] > f1]
+    # s = s[s['A2'] < f2]
 
-    print(f"range after cleaning [{s['A2'].max()},{s['A2'].min()}]")
+    # print(f"range after cleaning [{s['A2'].max()},{s['A2'].min()}]")
 
-    maximum = ceil(s['A2'].max())
-    minimum = floor(s['A2'].min())
+    # maximum = ceil(s['A2'].max())
+    # minimum = floor(s['A2'].min())
 
-    print(f"[maximum,minimum] [{minimum},{maximum}]")
-    print(f"subtract {most_significant_while_floordiv(maximum)} - {most_significant_while_floordiv(minimum)}")
-    numberOfGaps =  most_significant_while_floordiv(maximum) - most_significant_while_floordiv(minimum)
-    print(f"numberOfGaps {numberOfGaps}")
-    print(f"The number of values that cover the range are [{minimum},{maximum}]")
+    # print(f"[maximum,minimum] [{minimum},{maximum}]")
+    # print(f"subtract {most_significant_while_floordiv(maximum)} - {most_significant_while_floordiv(minimum)}")
+    # numberOfGaps =  most_significant_while_floordiv(maximum) - most_significant_while_floordiv(minimum)
+    # print(f"numberOfGaps {numberOfGaps}")
+    # print(f"The number of values that cover the range are [{minimum},{maximum}]")
 
-    return s
+    # return s
 
 def most_significant_while_floordiv(i):
     while i >= 10:
